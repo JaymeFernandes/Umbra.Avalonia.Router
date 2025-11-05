@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:RouterSample.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:DataType="vm:MainWindowViewModel"
+        x:Class="RouterSample.MainWindow"
+        Title="{Binding Title}">
+    
+    <Grid ColumnDefinitions="200,*">
+        <!-- Menu -->
+        <StackPanel Background="Purple" Spacing="10">
+            <TextBlock Text="Menu" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+            
+            <Button Content="Home"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="home"/>
+            
+            <Button Content="First Sub Page"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="sub/first"/>
+            
+            <Button Content="Second Sub Page"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="sub/second"/>
+            
+            <Button Content="Third Sub Page"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="sub/third"/>
+        </StackPanel>
+        
+        <!-- Main Content -->
+        <StackPanel Grid.Column="1" Margin="10">
+            <ContentControl Content="{Binding Content}"/>
+        </StackPanel>
+    </Grid>
+</Window>
