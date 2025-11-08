@@ -1,18 +1,18 @@
 using System;
-using Avalonia.SimpleRouter;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RouterSample.ViewModels.Example;
 using RouterSample.ViewModels.Shared;
+using Umbra.Avalonia.Router;
 
 namespace RouterSample.ViewModels;
 
 public partial class HomeViewModel : PageViewModelBase
 {
     [ObservableProperty] private string _name;
-    private RouterHistoryManager<PageViewModelBase> _router;
+    private RouterHistory<PageViewModelBase> _router;
 
-    public HomeViewModel(RouterHistoryManager<PageViewModelBase> router)
+    public HomeViewModel(RouterHistory<PageViewModelBase> router)
     {
         _router = router;
     }

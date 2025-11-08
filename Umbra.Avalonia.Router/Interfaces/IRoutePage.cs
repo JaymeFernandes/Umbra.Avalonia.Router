@@ -1,6 +1,6 @@
-using Avalonia.SimpleRouter.Context;
+using Umbra.Avalonia.Router.Context;
 
-namespace Avalonia.SimpleRouter.Interfaces;
+namespace Umbra.Avalonia.Router.Interfaces;
 
 public interface IRoutePage : IDisposable
 {

@@ -1,23 +1,25 @@
 ﻿using Avalonia.Controls;
-using Avalonia.SimpleRouter.Configuration;
-using Avalonia.SimpleRouter.Context;
-using Avalonia.SimpleRouter.Interfaces;
-using Avalonia.SimpleRouter.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Umbra.Avalonia.Router.Configuration;
+using Umbra.Avalonia.Router.Context;
+using Umbra.Avalonia.Router.Interfaces;
+using Umbra.Avalonia.Router.Services;
 
-namespace Avalonia.SimpleRouter;
+namespace Umbra.Avalonia.Router;
 
 public class Router<TViewModelBase> where TViewModelBase : class, IRoutePage
 {
     private readonly IServiceProvider _serviceProvider;
     private TViewModelBase _currentViewModel = default!;
+    protected readonly RouterConfig config;
     private Dictionary<Type, Type> _routes;
 
-    public event Action<Control>? CurrentViewModelChanged;
+    public event Action<Control>? PageChanged;
 
     public Router(IServiceProvider serviceProvider, RouterConfig options)
     {
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        config = options;
         _routes = options._pages;
     }
 
@@ -36,7 +38,7 @@ public class Router<TViewModelBase> where TViewModelBase : class, IRoutePage
         
             control.DataContext = _currentViewModel;
             
-            CurrentViewModelChanged?.Invoke(control);
+            PageChanged?.Invoke(control);
         }
     }
 
@@ -51,14 +53,12 @@ public class Router<TViewModelBase> where TViewModelBase : class, IRoutePage
     {
         if (string.IsNullOrWhiteSpace(url))
             throw new ArgumentException("Route cannot be null or empty.", nameof(url));
-
-        var normalizedUrl = url.StartsWith("app://", StringComparison.OrdinalIgnoreCase)
-            ? url
-            : "app://" + url;
+        
+        var context = new NavigationContext(url, body, config.Scheme, config.AppName);
 
         var routerMapper = _serviceProvider.GetRequiredService<RouterMapper>();
-        var vm = routerMapper.Resolve(normalizedUrl, body) as TViewModelBase
-                 ?? throw new InvalidOperationException($"Route '{normalizedUrl}' could not be resolved.");
+        var vm = routerMapper.Resolve(context.CurrentUrl, body) as TViewModelBase
+                 ?? throw new InvalidOperationException($"Route '{context.CurrentUrl}' could not be resolved.");
         
         return vm;
     }
@@ -70,13 +70,9 @@ public class Router<TViewModelBase> where TViewModelBase : class, IRoutePage
         if (string.IsNullOrWhiteSpace(context.CurrentUrl))
             throw new ArgumentException("Route cannot be null or empty.", nameof(url));
 
-        var normalizedUrl = url.StartsWith("app://", StringComparison.OrdinalIgnoreCase)
-            ? url
-            : "app://" + url;
-
         var routerMapper = _serviceProvider.GetRequiredService<RouterMapper>();
         var vm = routerMapper.Resolve(context) as TViewModelBase
-                 ?? throw new InvalidOperationException($"Route '{normalizedUrl}' could not be resolved.");
+                 ?? throw new InvalidOperationException($"Route '{url}' could not be resolved.");
 
         return vm;
     }

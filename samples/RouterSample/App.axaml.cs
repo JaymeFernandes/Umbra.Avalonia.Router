@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.SimpleRouter.Extensions;
 using DryIoc;
 using DryIoc.Microsoft.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +15,7 @@ using RouterSample.ViewModels.FirstSub;
 using RouterSample.ViewModels.SecondSub;
 using RouterSample.ViewModels.Shared;
 using RouterSample.ViewModels.ThirdSub;
+using Umbra.Avalonia.Router.Extensions;
 
 namespace RouterSample;
 
@@ -54,6 +54,8 @@ public partial class App : Application
             x.Register<FirstSubPage, FirstSubViewModel>("sub/first");
             x.Register<SecondSubPage, SecondSubViewModel>("sub/second");
             x.Register<ThirdSubPage, ThirdSubViewModel>("sub/third");
+
+            
         });
         
         var dryIoc = new Container()

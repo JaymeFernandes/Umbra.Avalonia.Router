@@ -4,16 +4,17 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <PackageId>Sandreas.Avalonia.SimpleRouter</PackageId>
-        <Authors>sandreas</Authors>
+        <PackageId>Umbra.Avalonia.Router</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Jayme Fernandes</Authors>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <RepositoryUrl>https://github.com/sandreas/Avalonia.SimpleRouter.git</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/sandreas/Avalonia.SimpleRouter.git</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/JaymeFernandes/Umbra.Avalonia.Router</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/JaymeFernandes/Umbra.Avalonia.Router</PackageProjectUrl>
         <PackageTags>avalonia;router;history</PackageTags>
         <Description>
             Cross platform view (model) router library for AvaloniaUI
         </Description>
-        <RootNamespace>Avalonia.SimpleRouter</RootNamespace>
+        <RootNamespace>Umbra.Avalonia.Router</RootNamespace>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
     <ItemGroup>
@@ -22,7 +23,6 @@
     <ItemGroup>
       <PackageReference Include="Avalonia" Version="11.3.8" />
       <PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+      <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.21" />
     </ItemGroup>
-
 </Project>

@@ -2,33 +2,89 @@ using System.Collections.Concurrent;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 
-namespace Avalonia.SimpleRouter.Context;
+namespace Umbra.Avalonia.Router.Context;
 
 public class NavigationContext
 {
-    public string CurrentUrl { get; private set;  }
+    private Uri _currentUri;
+    
+    
+    public string CurrentUrl
+    {
+        get => _currentUri.ToString();
+    }
+
+    internal string Key
+    {
+        get;
+        private set;
+    }
+    
+    
     
     public BodyContext<object> Body { get; private set; }
     public QueryContext Query { get; private set; }
 
 
-    public NavigationContext(object body, string urlNormalize, string url)
+    public NavigationContext(string url, object? body, string defaultScheme, string appName)
     {
+        _currentUri = NormalizeRoute(url, defaultScheme, appName);
+        Key = GenerateKey(url, defaultScheme, appName);
+        
         Body = new BodyContext<object>(body);
-        CurrentUrl = url;
-        Query = new QueryContext(urlNormalize);
+        Query = new QueryContext(_currentUri);
+    }
+
+    private Uri NormalizeRoute(string route, string defaultScheme, string appName)
+    {
+        if (string.IsNullOrWhiteSpace(route))
+            throw new ArgumentException("Route cannot be null or empty.", nameof(route));
+        
+        Uri? uri;
+        
+        if (Uri.TryCreate(route, UriKind.Absolute, out uri))
+            return uri;
+
+        return new Uri($"{defaultScheme}://{appName}/{route.TrimStart('/').TrimEnd('/')}");
+    }
+    
+    private string GenerateKey(string route, string defaultScheme, string appName)
+    {
+        if (string.IsNullOrWhiteSpace(route))
+            throw new ArgumentException("Route cannot be null or empty.", nameof(route));
+
+        Uri? uri;
+
+        if (Uri.TryCreate(route, UriKind.Absolute, out uri))
+        {
+            var path = uri.AbsolutePath.TrimEnd('/'); 
+            var host = string.IsNullOrWhiteSpace(uri.Host) ? appName : uri.Host;
+            var scheme = string.IsNullOrWhiteSpace(uri.Scheme) ? defaultScheme : uri.Scheme;
+
+            return $"{scheme}://{host}{path}";
+        }
+
+        var normalizedPath = route.TrimStart('/').TrimEnd('/');
+        return $"{defaultScheme}://{appName}/{normalizedPath}";
     }
 }
 
 public class BodyContext<T>
 {
     public T? Value { get; private set; }
-        
-    public bool IsEmpty => Value is null;
 
     public BodyContext(T? value)
     {
         Value = value;
+    }
+
+    public bool TryGetValue(out T? value)
+    {
+        var isEmpty = Value is null;
+        
+        value = isEmpty ? default : Value;
+
+        return !isEmpty;
     }
 }
     
@@ -36,14 +92,9 @@ public class QueryContext
 {
     private readonly ConcurrentDictionary<string, StringValues> _query;
     
-    public QueryContext(string url)
+    public QueryContext(Uri uri)
     {
-        if (string.IsNullOrWhiteSpace(url))
-            throw new ArgumentException("A URL não pode ser nula ou vazia.", nameof(url));
-        
-        var uri = new Uri(url);
         var parsed = QueryHelpers.ParseQuery(uri.Query);
-
         _query = new ConcurrentDictionary<string, StringValues>(parsed);
     }
     
@@ -78,7 +129,7 @@ public class QueryContext
             return new List<string>();
 
         return _query.TryGetValue(key, out var value)
-            ? value.ToList()
+            ? value.ToList()!
             : new List<string>();
     }
     
@@ -106,3 +157,4 @@ public class QueryContext
     public bool Contains(string key)
         => _query.ContainsKey(key);
 }
+

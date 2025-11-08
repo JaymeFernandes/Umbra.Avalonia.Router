@@ -1,11 +1,11 @@
 using System.Reflection;
 using Avalonia.Controls;
-using Avalonia.SimpleRouter.Configuration;
-using Avalonia.SimpleRouter.Interfaces;
-using Avalonia.SimpleRouter.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Umbra.Avalonia.Router.Configuration;
+using Umbra.Avalonia.Router.Interfaces;
+using Umbra.Avalonia.Router.Services;
 
-namespace Avalonia.SimpleRouter.Extensions;
+namespace Umbra.Avalonia.Router.Extensions;
 
 public static class RouterExtensions
 {
@@ -24,7 +24,7 @@ public static class RouterExtensions
         
         services.AddSingleton(config);
         services.AddSingleton<RouterMapper>();
-        services.AddSingleton<RouterHistoryManager<ViewModelBase>>();
+        services.AddSingleton<RouterHistory<ViewModelBase>>();
         
         
         return services;

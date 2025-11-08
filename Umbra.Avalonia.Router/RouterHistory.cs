@@ -1,10 +1,10 @@
-using Avalonia.SimpleRouter.Configuration;
-using Avalonia.SimpleRouter.Context;
-using Avalonia.SimpleRouter.Interfaces;
+using Umbra.Avalonia.Router.Configuration;
+using Umbra.Avalonia.Router.Context;
+using Umbra.Avalonia.Router.Interfaces;
 
-namespace Avalonia.SimpleRouter;
+namespace Umbra.Avalonia.Router;
 
-public class RouterHistoryManager<TViewModelBase> : Router<TViewModelBase> where TViewModelBase : class, IRoutePage
+public class RouterHistory<TViewModelBase> : Router<TViewModelBase> where TViewModelBase : class, IRoutePage
 {
     private int _historyIndex = -1;
     
@@ -14,14 +14,14 @@ public class RouterHistoryManager<TViewModelBase> : Router<TViewModelBase> where
     private readonly uint _historyMaxSize = 10;
     private string CurrentRouter = "";
 
-    public event Action<string>? CurrentTitleChanged;
+    public event Action<string>? TitleChanged;
     
     public bool HasNext => _history.Count > 0 && _historyIndex < _history.Count - 1;
     public bool HasPrev => _historyIndex > -1;
     
     public IReadOnlyCollection<NavigationContext> History => _history.AsReadOnly();
 
-    public RouterHistoryManager(IServiceProvider serviceProvider, RouterConfig config) : base(serviceProvider, config)
+    public RouterHistory(IServiceProvider serviceProvider, RouterConfig config) : base(serviceProvider, config)
     {
         _historyMaxSize = (uint)config.HistorySize;
     }
@@ -77,7 +77,7 @@ public class RouterHistoryManager<TViewModelBase> : Router<TViewModelBase> where
         _historyIndex += offset;
         CurrentViewModel = viewModel;
         
-        CurrentTitleChanged.Invoke(title);
+        TitleChanged.Invoke(title);
         
         return viewModel;
     }
@@ -95,10 +95,10 @@ public class RouterHistoryManager<TViewModelBase> : Router<TViewModelBase> where
         
         CurrentViewModel = destination;
         CurrentRouter = url;
-        if(CurrentTitleChanged != null)
-            CurrentTitleChanged.Invoke("");
+        if(TitleChanged != null)
+            TitleChanged.Invoke("");
         
-        Push(new NavigationContext(body, NormalizeUrl(url), url));
+        Push(new NavigationContext(url, body, config.Scheme, config.AppName));
         return destination;
     }
     
@@ -112,14 +112,9 @@ public class RouterHistoryManager<TViewModelBase> : Router<TViewModelBase> where
         CurrentViewModel = destination;
         CurrentRouter = url;
         
-        CurrentTitleChanged.Invoke(title);
+        TitleChanged.Invoke(title);
         
-        Push(new NavigationContext(body, NormalizeUrl(url), url), title);
+        Push(new NavigationContext(url, body, config.Scheme, config.AppName));
         return destination;
     }
-    
-    private string  NormalizeUrl(string url)
-        => url.StartsWith("app://", StringComparison.OrdinalIgnoreCase)
-            ? url
-            : "app://" + url;
 }

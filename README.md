@@ -1,47 +1,49 @@
-# Avalonia.SimpleRouter
+# Umbra.Avalonia.Router
 
-Cross platform router library targeting AvaloniaUI.
+Biblioteca de roteamento cross-platform para AvaloniaUI.
 
-## New: NavigationContext + IRoutePage support (experimental PR)
-
-This PR introduces an optional new router API designed around:
-
-- `NavigationContext`
-- strongly typed pages via an `IRoutePage` ViewModel base
-- async navigation hooks
-- seamless integration with `IServiceCollection`
-- DI independent (works with DryIoc / Autofac / etc)
-
-This API is fully opt-in — the existing `HistoryRouter` is **not removed**.
+> Este projeto **foi originalmente um fork** de `Sandreas.Avalonia.SimpleRouter`, porém foi amplamente modificado e evoluiu para algo significativamente diferente.
 
 ---
 
-# Install
+## Novidade: NavigationContext + IRoutePage
 
-📦 NuGet: https://nuget.org/packages/Sandreas.Avalonia.SimpleRouter
+Nova API opcional baseada em:
+
+- `NavigationContext`
+- páginas fortemente tipadas via `IRoutePage` (ViewModel)
+- hooks de navegação assíncronos
+- integração natural com `IServiceCollection`
+- independente do contêiner (DryIoc / Autofac / Microsoft DI / etc)
+
+---
+
+## Instalação
+
+📦 NuGet
 
 ```bash
-dotnet add package Sandreas.Avalonia.SimpleRouter
+dotnet add package Umbra.Avalonia.Router
 ````
 
-# Features
+---
 
-* No dependencies
+## Features
+
+* leve
 * IoC / DI friendly
-* ViewModel parameter injection
-* Navigation history (Back + Forward)
-* Extendable and flexible
-* Nested routing (experimental)
-* NEW: NavigationContext + IRoutePage API (optional)
+* injeção de parâmetros em ViewModels
+* histórico (Back / Forward)
+* extensível
+* **novo**: NavigationContext + IRoutePage
 
-# New API Overview (experimental)
+---
+
+## Overview da Nova API
 
 ### Base Page
 
 ```csharp
-using Avalonia.Router.Context;
-using Avalonia.Router.Interfaces;
-
 public abstract class ViewModelBasePage : IRoutePage
 {
     public void OnNavigatedTo(NavigationContext context) { }
@@ -53,59 +55,129 @@ public abstract class ViewModelBasePage : IRoutePage
 }
 ```
 
-### Page ViewModel
+### ViewModels
 
 ```csharp
 public partial class HomeViewModel : ViewModelBasePage
 {
+    private readonly RouterHistory<ViewModelBasePage> _router;
+
+    public HomeViewModel(RouterHistory<ViewModelBasePage> router)
+        => _router = router;
+
+    [RelayCommand]
+    public void NavigateToStore()
+        => _router.Navigate("store?query=games&page=1&size=20",
+                            "My App Store",
+                            new SessionParams(1, DateTime.UtcNow));
 }
+
+public partial class StoreViewModel : ViewModelBasePage
+{
+    [ObservableProperty] private string _query;
+    [ObservableProperty] private int _page;
+    [ObservableProperty] private int _size;
+
+    private SessionParams _body;
+    private readonly RouterHistory<ViewModelBasePage> _router;
+
+    public StoreViewModel(RouterHistory<ViewModelBasePage> router)
+        => _router = router;
+
+    public override Task OnNavigatedToAsync(NavigationContext context)
+    {
+        Query = context.Query.TryGetValue("query", out string query) ? query : ""; 
+        Page = context.Query.TryGetValueNumber("page", out int page) ? page : 0; 
+        Size = context.Query.TryGetValueNumber("size", out int size) ? size : 0;
+
+        if (context.Body.Value is SessionParams body)
+            _body = body;
+
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    public void NavigateToHome()
+        => _router.Navigate("home", "My App Home");
+}
+
+public record SessionParams(int Id, DateTime Date);
 ```
 
-### Register routes via DI
+### Registrar rotas
 
 ```csharp
 services.AddAvaloniaRouter<ViewModelBasePage>(options =>
 {
-    options.Register<HomePage, HomeViewModel>("home");
+    options.Register<HomePage,  HomeViewModel>("home");
+    options.Register<StorePage, StoreViewModel>("store");
 });
 ```
 
-### Navigate
+### Integração com a janela (MainWindow)
 
 ```csharp
-_router.Navigate("home");
-_router.Navigate("store");
+public partial class MainWindowViewModel : ViewModelBase
+{
+    [ObservableProperty] private Control _content;
+    [ObservableProperty] private string _title;
+
+    public MainWindowViewModel()
+    {
+        this.RouterHistory.TitleChanged += (title) =>
+        {
+            Title = string.IsNullOrWhiteSpace(title)
+                ? "Sample Router"
+                : $"Sample Router - {title}";
+        };
+
+        this.RouterHistory.PageChanged += (page) => Content = page;
+
+        this.RouterHistory.GoTo("home", "Home");
+    }
+}
 ```
 
----
+XAML:
 
-# DryIoc Example
+```xml
+<StackPanel Grid.Column="1" Margin="10">
+    <ContentControl Content="{Binding Content}"/>
+</StackPanel>
+```
+
+## DryIoc (exemplo)
 
 ```csharp
-using DryIoc.Microsoft.DependencyInjection;
+public static IContainer Container { get; set; }
 
-var builder = new ServiceCollection();
-builder.AddRouterAvalonia();
+private void ConfigureServices()
+{
+    var services = new ServiceCollection();
 
-var container = new Container()
-    .WithDependencyInjectionAdapter(builder)
-    .Populate(builder);
+    services.AddAvaloniaRouter<ViewModelBasePage>(options =>
+    {
+        options.Register<HomePage,  HomeViewModel>("home");
+        options.Register<StorePage, StoreViewModel>("store");
+
+        // Configurando base da rota myapp://SampleRoutereApp/...
+        options.Scheme = "myapp"; 
+        options.AppName = "SampleRoutereApp"; 
+
+        options.HistorySize = 5;
+    });
+
+    var dryIoc = new Container()
+        .WithDependencyInjectionAdapter(services)
+        .Populate(services);
+
+    Container = dryIoc;
+}
 ```
-
----
-
-# Classic API (still available)
-
-Existing `HistoryRouter<ViewModelBase>` API is **still supported** exactly as before.
-
-No breaking changes.
-
-Existing documentation remains valid.
 
 ---
 
 ## Roadmap
 
-* unify NavigationContext data passing
-* optional query style parameters
-* nested routing integration into the new API
+* unificar passagem de dados no NavigationContext
+* parâmetros estilo query opcionais

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avalonia.SimpleRouter", "Avalonia.SimpleRouter\Avalonia.SimpleRouter.csproj", "{79B37242-BD4B-4AF7-A69A-5595954FC2CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbra.Avalonia.Router", "Umbra.Avalonia.Router\Umbra.Avalonia.Router.csproj", "{79B37242-BD4B-4AF7-A69A-5595954FC2CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RouterSample", "samples\RouterSample\RouterSample.csproj", "{9DEF56FD-E4BD-47CB-AB47-C8A2E00877C3}"
 EndProject

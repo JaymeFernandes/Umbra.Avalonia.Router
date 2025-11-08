@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using Avalonia.SimpleRouter.Context;
-using Avalonia.SimpleRouter.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Umbra.Avalonia.Router.Context;
+using Umbra.Avalonia.Router.Interfaces;
 
 namespace RouterSample.ViewModels.Shared;
 

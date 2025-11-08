@@ -21,16 +21,16 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel()
     {
-        this.RouterHistoryManager.CurrentTitleChanged += (title) =>
+        this.RouterHistory.TitleChanged += (title) =>
         {
             Title = string.IsNullOrWhiteSpace(title) ? "Sample Router" : $"Sample Router - {title}";
         };
-        this.RouterHistoryManager.CurrentViewModelChanged += (page) => Content = page;
+        this.RouterHistory.PageChanged += (page) => Content = page;
 
-        this.RouterHistoryManager.GoTo("home", "Home");
+        this.RouterHistory.GoTo("home", "Home");
     }
 
     [RelayCommand]
     public void Navigate(string route) 
-        => this.RouterHistoryManager.GoTo(route, Titles[route] ?? "");
+        => this.RouterHistory.GoTo(route, Titles[route] ?? "");
 }

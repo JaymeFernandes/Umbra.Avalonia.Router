@@ -19,11 +19,11 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Avalonia.SimpleRouter\Avalonia.SimpleRouter.csproj" />
+    <ProjectReference Include="..\..\Umbra.Avalonia.Router\Umbra.Avalonia.Router.csproj" />
   </ItemGroup>
 
   <ItemGroup>
