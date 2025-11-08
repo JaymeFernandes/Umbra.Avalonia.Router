@@ -30,4 +30,24 @@ public class RouterConfig
         _routes[context.CurrentUrl] = typeof(TViewModel);
         _pages.Add(typeof(TViewModel), typeof(TPage));
     }
+    
+    public void SetPage404<TPage, TViewModel>() where TViewModel : class, IRoutePage where TPage : Control
+    {
+        var route = "404";
+        
+        if (_pages.ContainsKey(typeof(TViewModel)))
+            throw new InvalidOperationException($"ViewModel '{typeof(TViewModel).Name}' already registered with a Page.");
+        
+        if (string.IsNullOrWhiteSpace(route))
+            throw new ArgumentException("Route must not be null or empty.", nameof(route));
+
+        var context = new NavigationContext(route, null, Scheme, AppName);
+        
+        if (_routes.ContainsKey(context.CurrentUrl))
+            throw new InvalidOperationException($"Route '{route}' already registered.");
+        
+        
+        _routes[context.CurrentUrl] = typeof(TViewModel);
+        _pages.Add(typeof(TViewModel), typeof(TPage));
+    }
 }

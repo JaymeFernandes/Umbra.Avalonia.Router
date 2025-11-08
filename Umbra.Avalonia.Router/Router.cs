@@ -42,7 +42,7 @@ public class Router<TViewModelBase> where TViewModelBase : class, IRoutePage
         }
     }
 
-    public virtual TViewModelBase GoTo(string url, object? body = null)
+    public virtual TViewModelBase Navigate(string url, object? body = null)
     {
         var vm = ResolveViewModel(url, body);
         CurrentViewModel = vm;

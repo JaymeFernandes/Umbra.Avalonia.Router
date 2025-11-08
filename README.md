@@ -1,26 +1,25 @@
 # Umbra.Avalonia.Router
 
-Biblioteca de roteamento cross-platform para AvaloniaUI.
+Cross-platform routing library for AvaloniaUI.
 
-> Este projeto **foi originalmente um fork** de `Sandreas.Avalonia.SimpleRouter`, porém foi amplamente modificado e evoluiu para algo significativamente diferente.
+> This project **started as a fork** of `Sandreas.Avalonia.SimpleRouter`,
+> but has since evolved — the API and internals are now significantly different.
 
 ---
 
-## Novidade: NavigationContext + IRoutePage
+## New: NavigationContext + IRoutePage
 
-Nova API opcional baseada em:
+Optional modern API built around:
 
 - `NavigationContext`
-- páginas fortemente tipadas via `IRoutePage` (ViewModel)
-- hooks de navegação assíncronos
-- integração natural com `IServiceCollection`
-- independente do contêiner (DryIoc / Autofac / Microsoft DI / etc)
+- strongly-typed route pages via `IRoutePage` (ViewModel)
+- async navigation hooks
+- natural integration with `IServiceCollection`
+- container-agnostic (DryIoc / Autofac / Microsoft DI / etc)
 
 ---
 
-## Instalação
-
-📦 NuGet
+## Install
 
 ```bash
 dotnet add package Umbra.Avalonia.Router
@@ -30,16 +29,16 @@ dotnet add package Umbra.Avalonia.Router
 
 ## Features
 
-* leve
+* lightweight
 * IoC / DI friendly
-* injeção de parâmetros em ViewModels
-* histórico (Back / Forward)
-* extensível
-* **novo**: NavigationContext + IRoutePage
+* automatic parameter injection into ViewModels
+* navigation history (Back / Forward)
+* extensible
+* **new**: NavigationContext + IRoutePage API
 
 ---
 
-## Overview da Nova API
+## New API Overview
 
 ### Base Page
 
@@ -86,9 +85,14 @@ public partial class StoreViewModel : ViewModelBasePage
 
     public override Task OnNavigatedToAsync(NavigationContext context)
     {
-        Query = context.Query.TryGetValue("query", out string query) ? query : ""; 
-        Page = context.Query.TryGetValueNumber("page", out int page) ? page : 0; 
-        Size = context.Query.TryGetValueNumber("size", out int size) ? size : 0;
+        Query = context.Query.TryGetValue("query", out string query) 
+            ? query : ""; 
+
+        Page = context.Query.TryGetValueNumber("page", out int page) 
+            ? page : 0; 
+            
+        Size = context.Query.TryGetValueNumber("size", out int size) 
+            ? size : 0;
 
         if (context.Body.Value is SessionParams body)
             _body = body;
@@ -104,7 +108,7 @@ public partial class StoreViewModel : ViewModelBasePage
 public record SessionParams(int Id, DateTime Date);
 ```
 
-### Registrar rotas
+### Register Routes
 
 ```csharp
 services.AddAvaloniaRouter<ViewModelBasePage>(options =>
@@ -114,7 +118,7 @@ services.AddAvaloniaRouter<ViewModelBasePage>(options =>
 });
 ```
 
-### Integração com a janela (MainWindow)
+### MainWindow Integration
 
 ```csharp
 public partial class MainWindowViewModel : ViewModelBase
@@ -146,7 +150,7 @@ XAML:
 </StackPanel>
 ```
 
-## DryIoc (exemplo)
+## DryIoc Example
 
 ```csharp
 public static IContainer Container { get; set; }
@@ -157,14 +161,14 @@ private void ConfigureServices()
 
     services.AddAvaloniaRouter<ViewModelBasePage>(options =>
     {
-        options.Register<HomePage,  HomeViewModel>("home");
-        options.Register<StorePage, StoreViewModel>("store");
-
-        // Configurando base da rota myapp://SampleRoutereApp/...
+        // base route: myapp://SampleRouterApp/...
         options.Scheme = "myapp"; 
-        options.AppName = "SampleRoutereApp"; 
+        options.AppName = "SampleRouterApp"; 
 
         options.HistorySize = 5;
+
+        options.Register<HomePage,  HomeViewModel>("home");
+        options.Register<StorePage, StoreViewModel>("store");
     });
 
     var dryIoc = new Container()
@@ -179,5 +183,6 @@ private void ConfigureServices()
 
 ## Roadmap
 
-* unificar passagem de dados no NavigationContext
-* parâmetros estilo query opcionais
+* unify object & query data flow inside NavigationContext
+* optional query-style param helpers
+

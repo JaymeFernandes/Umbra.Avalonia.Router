@@ -21,6 +21,6 @@ public partial class HomeViewModel : PageViewModelBase
     public void Go()
     {
         if (!string.IsNullOrWhiteSpace(_name))
-            _router.GoTo($"example/params?name={_name}", new ParamsBody(DateTime.UtcNow));
+            _router.Navigate($"example/params?name={_name}", new ParamsBody(DateTime.UtcNow));
     }
 }

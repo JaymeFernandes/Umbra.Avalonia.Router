@@ -5,11 +5,13 @@ using DryIoc;
 using DryIoc.Microsoft.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using RouterSample.Pages;
+using RouterSample.Pages._404;
 using RouterSample.Pages.Example;
 using RouterSample.Pages.FirstSub;
 using RouterSample.Pages.SecondSub;
 using RouterSample.Pages.ThirdSub;
 using RouterSample.ViewModels;
+using RouterSample.ViewModels.Error404;
 using RouterSample.ViewModels.Example;
 using RouterSample.ViewModels.FirstSub;
 using RouterSample.ViewModels.SecondSub;
@@ -54,8 +56,7 @@ public partial class App : Application
             x.Register<FirstSubPage, FirstSubViewModel>("sub/first");
             x.Register<SecondSubPage, SecondSubViewModel>("sub/second");
             x.Register<ThirdSubPage, ThirdSubViewModel>("sub/third");
-
-            
+            x.SetPage404<Error404Page, Error404ViewModel>();
         });
         
         var dryIoc = new Container()

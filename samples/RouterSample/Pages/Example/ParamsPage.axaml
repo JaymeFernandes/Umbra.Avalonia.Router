@@ -8,12 +8,21 @@
              x:Class="RouterSample.Pages.Example.ParamsPage">
     <StackPanel Spacing="10">
         <StackPanel Orientation="Horizontal" Spacing="5">
+            <TextBlock Text="Page:"/>
+            <TextBlock Text="{Binding Page}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="5">
             <TextBlock Text="Name:"/>
             <TextBlock Text="{Binding UserName}"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="5">
             <TextBlock Text="Date:"/>
             <TextBlock Text="{Binding Date}"/>
+        </StackPanel>
+        
+        <StackPanel Spacing="10" Orientation="Horizontal">
+            <Button Command="{Binding GotoPreviousPageCommand}" Content="Previous"/>
+            <Button Command="{Binding GotoNextPageCommand}" Content="Next"/>
         </StackPanel>
     </StackPanel>
 </UserControl>

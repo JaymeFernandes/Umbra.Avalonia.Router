@@ -27,10 +27,10 @@ public partial class MainWindowViewModel : ViewModelBase
         };
         this.RouterHistory.PageChanged += (page) => Content = page;
 
-        this.RouterHistory.GoTo("home", "Home");
+        this.RouterHistory.Navigate("home", "Home");
     }
 
     [RelayCommand]
     public void Navigate(string route) 
-        => this.RouterHistory.GoTo(route, Titles[route] ?? "");
+        => this.RouterHistory.Navigate(route, Titles.TryGetValue(route, out var value) ? value : "");
 }

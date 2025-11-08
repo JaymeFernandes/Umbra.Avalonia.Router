@@ -28,6 +28,10 @@
             <Button Content="Third Sub Page"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="sub/third"/>
+            
+            <Button Content="Force 404"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="sub/third1"/>
         </StackPanel>
         
         <!-- Main Content -->

@@ -86,7 +86,7 @@ public class RouterHistory<TViewModelBase> : Router<TViewModelBase> where TViewM
     
     public TViewModelBase? Forward() => HasNext ? Go(1) : default;
     
-    public override TViewModelBase GoTo(string url, object body = null)
+    public override TViewModelBase Navigate(string url, object body = null)
     {
         var destination = ResolveViewModel(url, body);
 
@@ -102,7 +102,7 @@ public class RouterHistory<TViewModelBase> : Router<TViewModelBase> where TViewM
         return destination;
     }
     
-    public TViewModelBase GoTo(string url, string title, object body = null)
+    public TViewModelBase Navigate(string url, string title, object body = null)
     {
         var destination = ResolveViewModel(url, body);
 

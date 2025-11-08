@@ -8,7 +8,6 @@ public class NavigationContext
 {
     private Uri _currentUri;
     
-    
     public string CurrentUrl
     {
         get => _currentUri.ToString();
@@ -19,8 +18,6 @@ public class NavigationContext
         get;
         private set;
     }
-    
-    
     
     public BodyContext<object> Body { get; private set; }
     public QueryContext Query { get; private set; }
@@ -65,7 +62,7 @@ public class NavigationContext
         }
 
         var normalizedPath = route.TrimStart('/').TrimEnd('/');
-        return $"{defaultScheme}://{appName}/{normalizedPath}";
+        return $"{defaultScheme}://{appName}/{normalizedPath}".ToLower();
     }
 }
 
