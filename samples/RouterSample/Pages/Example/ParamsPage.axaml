@@ -13,7 +13,7 @@
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="5">
             <TextBlock Text="Name:"/>
-            <TextBlock Text="{Binding UserName}"/>
+            <TextBlock Text="{Binding Username}"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="5">
             <TextBlock Text="Date:"/>

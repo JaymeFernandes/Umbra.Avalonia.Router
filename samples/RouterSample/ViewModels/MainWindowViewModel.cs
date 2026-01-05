@@ -15,7 +15,7 @@ public partial class MainWindowViewModel : ViewModelBase
         { "sub/second", "Second Sub" },
         { "sub/third", "Third Sub" },
     };
-    
+
     [ObservableProperty] private Control _content;
     [ObservableProperty] private string _title;
 

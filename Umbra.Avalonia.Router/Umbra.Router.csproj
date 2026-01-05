@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>Umbra.Avalonia.Router</PackageId>
@@ -21,8 +21,10 @@
         <None Include="../README.md" Pack="true" PackagePath="/" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="Avalonia" Version="11.3.8" />
-      <PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="6.2.0" />
-      <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.21" />
+      <PackageReference Include="Avalonia" Version="11.3.10" />
+      <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+      <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.1" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+      <PackageReference Include="rm.Trie" Version="1.6.0" />
     </ItemGroup>
 </Project>

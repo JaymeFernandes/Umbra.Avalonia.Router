@@ -24,11 +24,11 @@ namespace RouterSample;
 public partial class App : Application
 {
     public static IContainer Container { get; set; }
-    
+
     public override void Initialize()
     {
         ConfigureServices();
-        
+    
         AvaloniaXamlLoader.Load(this);
     }
 
@@ -58,12 +58,12 @@ public partial class App : Application
             x.Register<ThirdSubPage, ThirdSubViewModel>("sub/third");
             x.SetPage404<Error404Page, Error404ViewModel>();
         });
-        
+    
         var dryIoc = new Container()
             .WithDependencyInjectionAdapter(services); 
-        
+    
         dryIoc.Populate(services);
-        
+    
         Container = dryIoc;
     }
 }

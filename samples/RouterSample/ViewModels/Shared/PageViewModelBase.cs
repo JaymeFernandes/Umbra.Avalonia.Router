@@ -1,16 +1,11 @@
+using System.Threading;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
-using Umbra.Avalonia.Router.Context;
-using Umbra.Avalonia.Router.Interfaces;
+using Umbra.Avalonia.Router.Base;
 
 namespace RouterSample.ViewModels.Shared;
 
-public class PageViewModelBase : ObservableObject, IRoutePage
+public abstract class PageViewModelBase : PageRouterBase
 {
-    public virtual void OnNavigatedTo(NavigationContext context) { }
-
-    public virtual Task OnNavigatedToAsync(NavigationContext context)
-        => Task.CompletedTask;
-    
-    public void Dispose() { }
+    public override Task OnNavigatedToAsync(CancellationToken ctx)
+      => Task.CompletedTask;
 }

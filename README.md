@@ -43,14 +43,10 @@ dotnet add package Umbra.Avalonia.Router
 ### Base Page
 
 ```csharp
-public abstract class ViewModelBasePage : IRoutePage
+public abstract class ViewModelBasePage : PageRouterBase
 {
-    public void OnNavigatedTo(NavigationContext context) { }
-
-    public Task OnNavigatedToAsync(NavigationContext context)
-        => Task.CompletedTask;
-
-    public virtual void Dispose() {}
+    public override Task OnNavigatedToAsync(CancellationToken ctx)
+      => Task.CompletedTask;
 }
 ```
 
@@ -83,18 +79,18 @@ public partial class StoreViewModel : ViewModelBasePage
     public StoreViewModel(RouterHistory<ViewModelBasePage> router)
         => _router = router;
 
-    public override Task OnNavigatedToAsync(NavigationContext context)
+    public override Task OnNavigatedToAsync(CancellationToken ctx)
     {
-        Query = context.Query.TryGetValue("query", out string query) 
+        Query = Context.Query.TryGetValue("query", out string query) 
             ? query : ""; 
 
-        Page = context.Query.TryGetValueNumber("page", out int page) 
+        Page = Context.Query.TryGetValueNumber("page", out int page) 
             ? page : 0; 
             
-        Size = context.Query.TryGetValueNumber("size", out int size) 
+        Size = Context.Query.TryGetValueNumber("size", out int size) 
             ? size : 0;
 
-        if (context.Body.Value is SessionParams body)
+        if (Context.Body.Value is SessionParams body)
             _body = body;
 
         return Task.CompletedTask;
@@ -169,6 +165,7 @@ private void ConfigureServices()
 
         options.Register<HomePage,  HomeViewModel>("home");
         options.Register<StorePage, StoreViewModel>("store");
+        options.SetPage404<Error404Page, Error404ViewModel>();
     });
 
     var dryIoc = new Container()
