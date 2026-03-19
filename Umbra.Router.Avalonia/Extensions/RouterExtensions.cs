@@ -1,11 +1,11 @@
+using System.Reflection;
 using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-using Umbra.Avalonia.Router.Configuration;
-using Umbra.Avalonia.Router.Interfaces;
-using Umbra.Avalonia.Router.Services;
+using Umbra.Router.Core.Configuration;
+using Umbra.Router.Core.Interfaces;
+using Umbra.Router.Core.Services;
 
-namespace Umbra.Avalonia.Router.Extensions;
+namespace Umbra.Router.Avalonia.Extensions;
 
 public static class RouterExtensions
 {
@@ -15,16 +15,17 @@ public static class RouterExtensions
 
         options(config);
 
-        foreach (var page in config._pages)
+        foreach (var page in config.GetAllDefinitions())
         {
             var method = typeof(RouterExtensions).GetMethod(nameof(AddControl), BindingFlags.NonPublic | BindingFlags.Static);
-            var generic = method.MakeGenericMethod(page.Value, page.Key);
+            var generic = method.MakeGenericMethod(page.View, page.ViewModel);
             generic.Invoke(null, new object[] { services });
         }
 
         services.AddSingleton(config);
         services.AddSingleton<IRouterResolver<ViewModelBase>, RouterResolver<ViewModelBase>>();
         services.AddSingleton<RouterHistory<ViewModelBase>>();
+        services.AddSingleton<GuardServices<ViewModelBase>>();
 
         return services;
     }

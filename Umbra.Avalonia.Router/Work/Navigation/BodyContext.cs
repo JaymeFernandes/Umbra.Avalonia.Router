@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Umbra.Avalonia.Router.Context;
+﻿namespace Umbra.Router.Core.Work.Navigation;
 
 public class BodyContext
 {
@@ -15,10 +11,13 @@ public class BodyContext
 
     public bool TryGetValue<T>(out T? value) where T : class
     {
-        var isEmpty = Value is null;
+        if (Value is T typed)
+        {
+            value = typed;
+            return true;
+        }
 
-        value = isEmpty ? default : (T)Value;
-
-        return !isEmpty;
+        value = default;
+        return false;
     }
 }

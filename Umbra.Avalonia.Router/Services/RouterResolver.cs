@@ -1,12 +1,12 @@
-﻿using rm.Trie;
-using Umbra.Avalonia.Router.Configuration;
-using Umbra.Avalonia.Router.Context;
-using Umbra.Avalonia.Router.Interfaces;
+﻿using Umbra.Router.Core.Configuration;
+using Umbra.Router.Core.Interfaces;
+using Umbra.Router.Core.Work.Navigation;
+using Umbra.Router.Core.Work.Trie;
 
-namespace Umbra.Avalonia.Router.Services;
+namespace Umbra.Router.Core.Services;
 
-public class RouterResolver<T> : IRouterResolver<T>
-   where T : class, IRoutePage
+public class RouterResolver<T> : IRouterResolver<T> 
+    where T : class, IRoutePage
 {
     private readonly string _uri404;
 
@@ -14,57 +14,62 @@ public class RouterResolver<T> : IRouterResolver<T>
 
     private IServiceProvider _serviceProvider;
 
-    private TrieMap<Type> _trie = new();
+    private readonly RouteMap _map;
 
     public RouterResolver(RouterConfig<T> config, IServiceProvider serviceProvider)
     {
-        foreach (var page in config._routes)
-            _trie.Add(page.Key, page.Value);
-
+        _map = config.Build();
+        
         _serviceProvider = serviceProvider;
 
         _config = config;
-
-        _uri404 = new NavigationContext("404", null, _config.Scheme, _config.AppName).Key;
     }
 
-    public IRoutePage Resolve(string route, object body)
+    public RouterResult Resolve(RouteSnapshot snapshot)
     {
-        var context = new NavigationContext(route, body, _config.Scheme, _config.AppName);
-        var key = context.Key;
+        var template = _map.Match(snapshot.Path);
 
-        return Resolve(context);
+        if (template == null)
+            throw new NotSupportedException($"Route '{snapshot.Path}' is not supported.");
+
+        var context = template.ResolveContext(snapshot);
+
+        return ResolveIRoutePage(template.Definition, context);
     }
 
-    public IRoutePage Resolve(NavigationContext context)
+    public RouterResult Resolve(string route, object body)
     {
-        var node = _trie.ValueBy(context.Key);
-
-        if (node != null)
-            return ResolveIRoutePage(type: node, context);
-
-        var node404 = _trie.ValueBy(_uri404);
-
-        if (node404 != null)
-            return ResolveIRoutePage(type: node404, context);
-
-        throw new NotSupportedException($"Route '{context.CurrentUrl}' is not supported.");
+        return Resolve(new RouteSnapshot(route, body));
     }
-
-    private IRoutePage ResolveIRoutePage(Type type, NavigationContext context)
+    
+    private RouterResult ResolveIRoutePage(NavigationDefinition definition, NavigationContext context)
     {
-        if (!typeof(IRoutePage).IsAssignableFrom(type))
+        if (!typeof(IRoutePage).IsAssignableFrom(definition.ViewModel))
             throw new InvalidOperationException(
-                $"The type {type.Name} does not implement IRoutePage.");
-
-        var vm = _serviceProvider.GetService(type) as IRoutePage;
+                $"The type {definition.ViewModel.Name} does not implement IRoutePage.");
+        
+        var vm = _serviceProvider.GetService(definition.ViewModel) as IRoutePage;
 
         if (vm == null)
-            throw new InvalidOperationException($"The type {type.Name} is not registered in the container.");
+            throw new InvalidOperationException($"The type {definition.ViewModel.Name} is not registered in the container.");
 
         _ = Task.Run(
             async () => await vm.InitializeAsync(context));
+        
+        return new RouterResult(definition.View, vm, context);
+    }
+}
 
-        return vm;
+public class RouterResult
+{
+    public Type View;
+    public IRoutePage ViewModel;
+    public NavigationContext Context;
+
+    public RouterResult(Type view, IRoutePage viewModel,  NavigationContext context)
+    {
+        View = view;
+        ViewModel = viewModel;
+        Context = context;
     }
 }

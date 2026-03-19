@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbra.Router", "Umbra.Avalonia.Router\Umbra.Router.csproj", "{79B37242-BD4B-4AF7-A69A-5595954FC2CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbra.Router.Core", "Umbra.Avalonia.Router\Umbra.Router.Core.csproj", "{79B37242-BD4B-4AF7-A69A-5595954FC2CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RouterSample", "samples\RouterSample\RouterSample.csproj", "{9DEF56FD-E4BD-47CB-AB47-C8A2E00877C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbra.Router.Avalonia", "Umbra.Router.Avalonia\Umbra.Router.Avalonia.csproj", "{F90AC397-8D20-49D5-AD70-3EE38D2E09CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbra.Router.Unit.Test", "Umbra.Router.Unit.Test\Umbra.Router.Unit.Test.csproj", "{C51E3F35-015B-4108-8EC2-327F841B0B8C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{9DEF56FD-E4BD-47CB-AB47-C8A2E00877C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DEF56FD-E4BD-47CB-AB47-C8A2E00877C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DEF56FD-E4BD-47CB-AB47-C8A2E00877C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F90AC397-8D20-49D5-AD70-3EE38D2E09CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F90AC397-8D20-49D5-AD70-3EE38D2E09CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F90AC397-8D20-49D5-AD70-3EE38D2E09CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F90AC397-8D20-49D5-AD70-3EE38D2E09CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C51E3F35-015B-4108-8EC2-327F841B0B8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C51E3F35-015B-4108-8EC2-327F841B0B8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C51E3F35-015B-4108-8EC2-327F841B0B8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C51E3F35-015B-4108-8EC2-327F841B0B8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

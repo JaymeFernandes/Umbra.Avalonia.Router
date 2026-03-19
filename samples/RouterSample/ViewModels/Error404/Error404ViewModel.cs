@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using RouterSample.ViewModels.Shared;
 using System.Threading;
 using System.Threading.Tasks;
-using Umbra.Avalonia.Router.Context;
 
 namespace RouterSample.ViewModels.Error404;
 

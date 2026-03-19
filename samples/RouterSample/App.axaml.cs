@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -17,7 +18,7 @@ using RouterSample.ViewModels.FirstSub;
 using RouterSample.ViewModels.SecondSub;
 using RouterSample.ViewModels.Shared;
 using RouterSample.ViewModels.ThirdSub;
-using Umbra.Avalonia.Router.Extensions;
+using Umbra.Router.Avalonia.Extensions;
 
 namespace RouterSample;
 
@@ -48,7 +49,7 @@ public partial class App : Application
     private void ConfigureServices()
     {
         var services = new ServiceCollection();
-
+        
         services.AddAvaloniaRouter<PageViewModelBase>(x =>
         {
             x.Register<HomePage, HomeViewModel>("home");
@@ -56,7 +57,7 @@ public partial class App : Application
             x.Register<FirstSubPage, FirstSubViewModel>("sub/first");
             x.Register<SecondSubPage, SecondSubViewModel>("sub/second");
             x.Register<ThirdSubPage, ThirdSubViewModel>("sub/third");
-            x.SetPage404<Error404Page, Error404ViewModel>();
+            x.Register<Error404Page, Error404ViewModel>("**");
         });
     
         var dryIoc = new Container()

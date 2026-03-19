@@ -1,10 +1,11 @@
-﻿using Umbra.Avalonia.Router.Context;
+﻿using Umbra.Router.Core.Services;
+using Umbra.Router.Core.Work.Trie;
 
-namespace Umbra.Avalonia.Router.Interfaces;
+namespace Umbra.Router.Core.Interfaces;
 
 public interface IRouterResolver<T> where T : class, IRoutePage
 {
-    public IRoutePage Resolve(string route, object body);
+    public RouterResult Resolve(string route, object body);
 
-    public IRoutePage Resolve(NavigationContext context);
+    public RouterResult Resolve(RouteSnapshot context);
 }

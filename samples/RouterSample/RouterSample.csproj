@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.3.10" />
+    <PackageReference Include="Avalonia" Version="11.3.12" />
     <PackageReference Include="Avalonia.Desktop" Version="11.3.10" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.10" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.10" />
@@ -24,7 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Umbra.Avalonia.Router\Umbra.Router.csproj" />
+    <ProjectReference Include="..\..\Umbra.Avalonia.Router\Umbra.Router.Core.csproj" />
+    <ProjectReference Include="..\..\Umbra.Router.Avalonia\Umbra.Router.Avalonia.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,5 +41,9 @@
       <DependentUpon>ThirdSubPage.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Configuration\" />
   </ItemGroup>
 </Project>

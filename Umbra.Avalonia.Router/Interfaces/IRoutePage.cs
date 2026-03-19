@@ -1,10 +1,11 @@
-using Avalonia.Controls;
-using Umbra.Avalonia.Router.Context;
+using Umbra.Router.Core.Work.Navigation;
 
-namespace Umbra.Avalonia.Router.Interfaces;
+namespace Umbra.Router.Core.Interfaces;
 
 public interface IRoutePage : IDisposable
 {
+    public NavigationContext Context { get; }
+    
     public Task InitializeAsync(NavigationContext context);
 
     protected Task OnNavigatedToAsync(CancellationToken ctx);

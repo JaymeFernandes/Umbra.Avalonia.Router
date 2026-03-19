@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RouterSample.ViewModels.Shared;
+using Umbra.Router.Core.Events;
 
 namespace RouterSample.ViewModels;
 
@@ -25,7 +26,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             Title = string.IsNullOrWhiteSpace(title) ? "Sample Router" : $"Sample Router - {title}";
         };
-        this.RouterHistory.PageChanged += (page) => Content = page;
+        this.RouterHistory.PageChanged += NavigateEvent;
 
         this.RouterHistory.Navigate("home", "Home");
     }
@@ -33,4 +34,9 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     public void Navigate(string route) 
         => this.RouterHistory.Navigate(route, Titles.TryGetValue(route, out var value) ? value : "");
+
+    private void NavigateEvent(object? sender, NavigationResultEventArgs<Control> e)
+    {
+        Content = e.Page;
+    }
 }

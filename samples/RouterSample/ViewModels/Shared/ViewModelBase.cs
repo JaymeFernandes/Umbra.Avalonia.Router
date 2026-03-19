@@ -1,7 +1,7 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DryIoc;
-using Umbra.Avalonia.Router;
+using Umbra.Router.Avalonia;
 
 namespace RouterSample.ViewModels.Shared;
 

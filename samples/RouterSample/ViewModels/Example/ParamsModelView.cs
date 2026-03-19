@@ -4,7 +4,7 @@ using RouterSample.ViewModels.Shared;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Umbra.Avalonia.Router;
+using Umbra.Router.Avalonia;
 
 namespace RouterSample.ViewModels.Example;
 
@@ -48,12 +48,13 @@ public partial class ParamsModelView : PageViewModelBase
 
     public override async Task OnNavigatedToAsync(CancellationToken ctx)
     {
-        Username = Context.Query.GetValue("name");
+        Username = Context.Query.TryGetValue("name", out string name)
+            ? name : "";
 
-        Page = Context.Query.TryGetValueNumber("page", out var page)
+        Page = Context.Query.TryGetValue("page", out int page)
             ? page : 0;
 
-        if (Context.Body.Value is ParamsBody body)
+        if (Context.Body.TryGetValue(out ParamsBody? body))
             Date = body.Date.ToString("hh:mm:ss");
     }
 }

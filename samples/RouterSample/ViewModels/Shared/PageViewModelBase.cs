@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Umbra.Avalonia.Router.Base;
+using Umbra.Router.Core.Base;
 
 namespace RouterSample.ViewModels.Shared;
 

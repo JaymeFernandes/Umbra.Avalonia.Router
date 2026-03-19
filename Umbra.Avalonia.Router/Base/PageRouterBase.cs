@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Umbra.Avalonia.Router.Context;
-using Umbra.Avalonia.Router.Interfaces;
+using Umbra.Router.Core.Interfaces;
+using Umbra.Router.Core.Work.Navigation;
 
-namespace Umbra.Avalonia.Router.Base
+namespace Umbra.Router.Core.Base
 {
     public enum RouterStatus
     {
@@ -23,9 +23,10 @@ namespace Umbra.Avalonia.Router.Base
 
         private NavigationContext _navigationContext = default!;
 
-        [ObservableProperty] private RouterStatus _status = RouterStatus.None;
+        [ObservableProperty] 
+        private RouterStatus _status = RouterStatus.None;
 
-        protected NavigationContext Context => _navigationContext;
+        public NavigationContext Context => _navigationContext;
 
         private CancellationToken _ctx => _cts?.Token ?? CancellationToken.None;
 
@@ -67,13 +68,18 @@ namespace Umbra.Avalonia.Router.Base
             {
                 await OnNavigatedToAsync(_ctx);
 
-                if (!_cts.IsCancellationRequested)
+                if (_cts != null && !_cts.IsCancellationRequested)
                 {
                     Status = RouterStatus.Completed;
 
                     await OnCompletedAsync();
 
                     _isInitialize = true;
+                }
+                else
+                {
+                    Status = RouterStatus.Disposed;
+                    await OnCancelationNavigatedToAsync();
                 }
             }
             catch (OperationCanceledException)

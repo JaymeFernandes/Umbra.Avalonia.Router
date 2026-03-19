@@ -3,8 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using RouterSample.ViewModels.Example;
 using RouterSample.ViewModels.Shared;
 using System;
-using System.Threading.Tasks;
-using Umbra.Avalonia.Router;
+using Umbra.Router.Avalonia;
 
 namespace RouterSample.ViewModels;
 
