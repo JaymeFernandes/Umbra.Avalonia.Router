@@ -10,14 +10,18 @@ public class ParametersContext
     {
         _parameters = new ConcurrentDictionary<string, string>(parameters);
     }
-    
+
     public bool Contains(string key)
-        => _parameters.ContainsKey(key);
+    {
+        return _parameters.ContainsKey(key);
+    }
 
     public bool Any()
-        => _parameters.Any();
-    
-    
+    {
+        return _parameters.Any();
+    }
+
+
     public bool TryGetValue(string key, out string? value)
     {
         value = "";

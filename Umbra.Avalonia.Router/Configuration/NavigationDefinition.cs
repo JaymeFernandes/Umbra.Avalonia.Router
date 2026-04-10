@@ -6,8 +6,20 @@ namespace Umbra.Router.Core.Configuration;
 
 public abstract class NavigationDefinition
 {
-    private UriContext _route;
+    public readonly Type View;
+    public readonly Type ViewModel;
     private string _key;
+    private UriContext _route;
+    public string Name = "myapp";
+
+    public string Scheme = "app";
+
+    protected NavigationDefinition(Type view, Type viewModel)
+    {
+        Route = "";
+        View = view;
+        ViewModel = viewModel;
+    }
 
     public string Route
     {
@@ -21,39 +33,25 @@ public abstract class NavigationDefinition
         }
     }
 
-    public string Scheme = "app";
-    public string Name = "myapp";
-    
-    public readonly Type View;
-    public readonly Type ViewModel;
-    
     public ICollection<GuardDefinition>? Guards { get; set; }
 
     public NavigationDefinition AddGuard(GuardDefinition guard)
     {
         if (Guards == null)
             Guards = new List<GuardDefinition>();
-        
+
         Guards.Add(guard);
 
         return this;
     }
-
-    protected NavigationDefinition(Type view, Type viewModel)
-    {
-        Route = "";
-        View = view;
-        ViewModel = viewModel;
-    }
 }
 
-public class NavigationDefinition<TView, TViewModel> : NavigationDefinition 
+public class NavigationDefinition<TView, TViewModel> : NavigationDefinition
     where TViewModel : class, IRoutePage
     where TView : class
 {
     public NavigationDefinition() : base(typeof(TView), typeof(TViewModel))
     {
-        
     }
 
     public NavigationDefinition(string route) : base(typeof(TView), typeof(TViewModel))

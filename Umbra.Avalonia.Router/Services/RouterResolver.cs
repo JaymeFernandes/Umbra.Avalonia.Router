@@ -5,21 +5,20 @@ using Umbra.Router.Core.Work.Trie;
 
 namespace Umbra.Router.Core.Services;
 
-public class RouterResolver<T> : IRouterResolver<T> 
+public class RouterResolver<T> : IRouterResolver<T>
     where T : class, IRoutePage
 {
+    private readonly RouteMap _map;
+
+    private readonly IServiceProvider _serviceProvider;
     private readonly string _uri404;
 
     private RouterConfig<T> _config;
 
-    private IServiceProvider _serviceProvider;
-
-    private readonly RouteMap _map;
-
     public RouterResolver(RouterConfig<T> config, IServiceProvider serviceProvider)
     {
         _map = config.Build();
-        
+
         _serviceProvider = serviceProvider;
 
         _config = config;
@@ -41,32 +40,32 @@ public class RouterResolver<T> : IRouterResolver<T>
     {
         return Resolve(new RouteSnapshot(route, body));
     }
-    
+
     private RouterResult ResolveIRoutePage(NavigationDefinition definition, NavigationContext context)
     {
         if (!typeof(IRoutePage).IsAssignableFrom(definition.ViewModel))
             throw new InvalidOperationException(
                 $"The type {definition.ViewModel.Name} does not implement IRoutePage.");
-        
+
         var vm = _serviceProvider.GetService(definition.ViewModel) as IRoutePage;
 
         if (vm == null)
-            throw new InvalidOperationException($"The type {definition.ViewModel.Name} is not registered in the container.");
+            throw new InvalidOperationException(
+                $"The type {definition.ViewModel.Name} is not registered in the container.");
 
-        _ = Task.Run(
-            async () => await vm.InitializeAsync(context));
-        
+        _ = Task.Run(async () => await vm.InitializeAsync(context));
+
         return new RouterResult(definition.View, vm, context);
     }
 }
 
 public class RouterResult
 {
+    public NavigationContext Context;
     public Type View;
     public IRoutePage ViewModel;
-    public NavigationContext Context;
 
-    public RouterResult(Type view, IRoutePage viewModel,  NavigationContext context)
+    public RouterResult(Type view, IRoutePage viewModel, NavigationContext context)
     {
         View = view;
         ViewModel = viewModel;

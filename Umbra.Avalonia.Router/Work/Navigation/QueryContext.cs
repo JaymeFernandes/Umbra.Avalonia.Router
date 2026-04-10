@@ -3,18 +3,16 @@ namespace Umbra.Router.Core.Work.Navigation;
 public class QueryContext
 {
     private readonly Dictionary<string, QueryValue> _values = new();
-    
-    public int Count => _values.Count;
 
     public QueryContext(string value)
     {
         Dictionary<string, string> values = new();
 
         var indexInit = value.IndexOf('?');
-        
+
         if (indexInit != -1)
             value = value[(indexInit + 1)..];
-        
+
         foreach (var pair in value.Split('&', StringSplitOptions.RemoveEmptyEntries))
         {
             var index = pair.IndexOf('=');
@@ -24,12 +22,12 @@ public class QueryContext
 
             if (key.Contains('%'))
                 key = Uri.UnescapeDataString(key);
-            
+
             val = val.Replace('+', ' ');
-            
+
             if (val.Contains('%'))
                 val = Uri.UnescapeDataString(val);
-            
+
             if (values.TryGetValue(key, out var existing))
                 values[key] = existing + "," + val;
             else
@@ -37,9 +35,11 @@ public class QueryContext
         }
 
         _values = values.ToDictionary(
-            x => x.Key, 
+            x => x.Key,
             y => new QueryValue(y.Value));
     }
+
+    public int Count => _values.Count;
 
     public bool TryGetValue<T>(string key, out T? value)
     {
@@ -62,7 +62,7 @@ public class QueryContext
 
             return success;
         }
-        
+
         return false;
     }
 
@@ -78,53 +78,57 @@ public class QueryContext
     {
         if (_values.TryGetValue(key, out var val))
             return val.GetValues<T>();
-        
+
         return Array.Empty<T>();
     }
-    
+
     public bool ContainsKey(string key)
-        => _values.ContainsKey(key);
+    {
+        return _values.ContainsKey(key);
+    }
 }
 
 public class QueryValue
 {
-    private List<string> _values { get; }
-    
     public QueryValue(string value)
     {
         _values = value.Split(',').Select(x => x.Trim()).ToList();
     }
-    
+
+    private List<string> _values { get; }
+
     public IReadOnlyList<string> Values => _values;
 
     public bool TryGetValue<T>(out T value)
-        => Convert<T>(out value);
+    {
+        return Convert(out value);
+    }
 
     public T GetValue<T>()
     {
         Convert<T>(out var value);
-        
+
         return value;
     }
 
     public IReadOnlyList<T> GetValues<T>()
     {
-        if(typeof(T) == typeof(QueryValue))
-            return new List<T>() { (T)(object)this };
-        
+        if (typeof(T) == typeof(QueryValue))
+            return new List<T> { (T)(object)this };
+
         var values = new List<T>();
-        
+
         foreach (var val in _values)
-        {
-            if(Convert(val, out T value))
+            if (Convert(val, out T value))
                 values.Add(value);
-        }
-        
+
         return values;
     }
 
     private bool Convert<T>(out T value)
-        => Convert(_values.FirstOrDefault(), out value);
+    {
+        return Convert(_values.FirstOrDefault(), out value);
+    }
 
     private bool Convert<T>(string? value, out T result)
     {
@@ -133,13 +137,13 @@ public class QueryValue
             result = default;
             return true;
         }
-        
+
         if (typeof(T) == typeof(QueryValue))
         {
             result = (T)(object)this;
             return true;
         }
-        
+
         if (typeof(T) == typeof(string))
         {
             result = (T)(object)value;
@@ -168,4 +172,3 @@ public class QueryValue
         return false;
     }
 }
-

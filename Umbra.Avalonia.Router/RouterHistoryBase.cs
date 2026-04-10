@@ -6,7 +6,7 @@ using Umbra.Router.Core.Work.Trie;
 
 namespace Umbra.Router.Core;
 
-public class RouterHistoryBase<TViewModelBase, TView> : 
+public class RouterHistoryBase<TViewModelBase, TView> :
     RouterBase<TViewModelBase, TView> where TViewModelBase : class, IRoutePage
     where TView : class
 {
@@ -20,13 +20,12 @@ public class RouterHistoryBase<TViewModelBase, TView> :
 
     private UriContext CurrentRouter;
 
-    public RouterHistoryBase(IServiceProvider serviceProvider, RouterConfig<TViewModelBase> config, GuardServices<TViewModelBase> guards) 
+    public RouterHistoryBase(IServiceProvider serviceProvider, RouterConfig<TViewModelBase> config,
+        GuardServices<TViewModelBase> guards)
         : base(serviceProvider, guards)
     {
         _historyMaxSize = (uint)config.HistorySize;
     }
-
-    public event Action<string>? TitleChanged;
 
     public bool HasNext => _history.Count > 0 && _historyIndex < _history.Count - 1;
 
@@ -34,19 +33,22 @@ public class RouterHistoryBase<TViewModelBase, TView> :
 
     public IReadOnlyCollection<RouteSnapshot> History => _history.AsReadOnly();
 
-    public TViewModelBase? Back() => HasPrev ? Go(-1) : default;
+    public TViewModelBase? Back()
+    {
+        return HasPrev ? Go(-1) : default;
+    }
 
-    public TViewModelBase? Forward() => HasNext ? Go(1) : default;
+    public TViewModelBase? Forward()
+    {
+        return HasNext ? Go(1) : default;
+    }
 
     public RouteSnapshot? GetHistoryItem(int offset, out string title)
     {
         title = "";
 
         var newIndex = _historyIndex + offset;
-        if (newIndex < 0 || newIndex > _history.Count - 1)
-        {
-            return default;
-        }
+        if (newIndex < 0 || newIndex > _history.Count - 1) return default;
 
         title = _titles.ElementAt(newIndex);
         return _history.ElementAt(newIndex);
@@ -54,16 +56,10 @@ public class RouterHistoryBase<TViewModelBase, TView> :
 
     public TViewModelBase? Go(int offset = 0)
     {
-        if (offset == 0)
-        {
-            return default;
-        }
+        if (offset == 0) return default;
 
         var context = GetHistoryItem(offset, out var title);
-        if (context == null)
-        {
-            return default;
-        }
+        if (context == null) return default;
 
         var routerResult = ResolveViewModel(context);
 
@@ -84,7 +80,7 @@ public class RouterHistoryBase<TViewModelBase, TView> :
     {
         return Navigate(new RouteSnapshot(url, body), title);
     }
-    
+
     private TViewModelBase Navigate(RouteSnapshot snapshot, string title = "")
     {
         var routerResult = ResolveViewModel(snapshot);
@@ -108,6 +104,7 @@ public class RouterHistoryBase<TViewModelBase, TView> :
             _history = _history.Take(_historyIndex + 1).ToList();
             _titles = _titles.Take(_historyIndex + 1).ToList();
         }
+
         _titles.Add(title);
         _history.Add(item);
         _historyIndex = _history.Count - 1;
@@ -119,4 +116,6 @@ public class RouterHistoryBase<TViewModelBase, TView> :
             _historyIndex--;
         }
     }
+
+    public event Action<string>? TitleChanged;
 }

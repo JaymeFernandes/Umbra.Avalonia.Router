@@ -19,19 +19,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Umbra.Avalonia.Router\Umbra.Router.Core.csproj" />
+        <ProjectReference Include="..\Umbra.Avalonia.Router\Umbra.Router.Core.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Avalonia" Version="11.3.12" />
+        <PackageReference Include="Avalonia" Version="11.3.12"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="..\README.md">
-        <Pack>true</Pack>
-        <PackagePath>/</PackagePath>
-        <Link>README.md</Link>
-      </None>
+        <None Include="..\README.md">
+            <Pack>true</Pack>
+            <PackagePath>/</PackagePath>
+            <Link>README.md</Link>
+        </None>
     </ItemGroup>
 
 </Project>

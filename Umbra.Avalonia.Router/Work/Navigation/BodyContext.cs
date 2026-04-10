@@ -7,7 +7,7 @@ public class BodyContext
         Value = value;
     }
 
-    public object? Value { get; private set; }
+    public object? Value { get; }
 
     public bool TryGetValue<T>(out T? value) where T : class
     {

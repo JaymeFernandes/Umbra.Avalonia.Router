@@ -2,12 +2,12 @@ namespace Umbra.Router.Core.Work.Trie;
 
 public abstract class Segment
 {
-    public string Key { get; set; }
-
     protected Segment(string key)
     {
         Key = key;
     }
+
+    public string Key { get; set; }
 }
 
 public class LiteralSegment : Segment

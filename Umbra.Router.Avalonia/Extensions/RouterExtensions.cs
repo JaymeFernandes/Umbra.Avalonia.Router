@@ -9,7 +9,8 @@ namespace Umbra.Router.Avalonia.Extensions;
 
 public static class RouterExtensions
 {
-    public static IServiceCollection AddAvaloniaRouter<ViewModelBase>(this IServiceCollection services, Action<RouterConfig<ViewModelBase>> options) where ViewModelBase : class, IRoutePage
+    public static IServiceCollection AddAvaloniaRouter<ViewModelBase>(this IServiceCollection services,
+        Action<RouterConfig<ViewModelBase>> options) where ViewModelBase : class, IRoutePage
     {
         var config = new RouterConfig<ViewModelBase>();
 
@@ -17,7 +18,8 @@ public static class RouterExtensions
 
         foreach (var page in config.GetAllDefinitions())
         {
-            var method = typeof(RouterExtensions).GetMethod(nameof(AddControl), BindingFlags.NonPublic | BindingFlags.Static);
+            var method =
+                typeof(RouterExtensions).GetMethod(nameof(AddControl), BindingFlags.NonPublic | BindingFlags.Static);
             var generic = method.MakeGenericMethod(page.View, page.ViewModel);
             generic.Invoke(null, new object[] { services });
         }
@@ -30,10 +32,11 @@ public static class RouterExtensions
         return services;
     }
 
-    private static IServiceCollection AddControl<TControl, TModel>(this IServiceCollection services) where TControl : Control, new() where TModel : class
+    private static IServiceCollection AddControl<TControl, TModel>(this IServiceCollection services)
+        where TControl : Control, new() where TModel : class
     {
         services.AddTransient<TModel>();
-        services.AddTransient<TControl>(x => new TControl()
+        services.AddTransient<TControl>(x => new TControl
         {
             DataContext = x.GetRequiredService<TModel>()
         });

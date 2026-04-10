@@ -2,114 +2,114 @@
 using Umbra.Router.Core.Interfaces;
 using Umbra.Router.Core.Work.Navigation;
 
-namespace Umbra.Router.Core.Base
+namespace Umbra.Router.Core.Base;
+
+public enum RouterStatus
 {
-    public enum RouterStatus
+    None,
+
+    Navigating,
+
+    Completed,
+
+    Disposed
+}
+
+public abstract class PageRouterBase : ObservableObject, IRoutePage
+{
+    private CancellationTokenSource? _cts;
+
+    private bool _isInitialize;
+
+    public RouterStatus Status { get; private set; } = RouterStatus.None;
+
+    private CancellationToken _ctx => _cts?.Token ?? CancellationToken.None;
+
+    public NavigationContext Context { get; private set; } = default!;
+
+    public virtual void Dispose()
     {
-        None,
+        _cts?.Cancel();
+        _cts?.Dispose();
 
-        Navigating,
-
-        Completed,
-
-        Disposed
+        _cts = null;
+        Context = null!;
     }
 
-    public abstract partial class PageRouterBase : ObservableObject, IRoutePage
+    public async Task InitializeAsync(NavigationContext context)
     {
-        private CancellationTokenSource? _cts;
+        if (_isInitialize)
+            return;
 
-        private bool _isInitialize = false;
+        _cts?.Cancel();
+        _cts?.Dispose();
 
-        private NavigationContext _navigationContext = default!;
+        _cts = new CancellationTokenSource();
 
-        [ObservableProperty] 
-        private RouterStatus _status = RouterStatus.None;
+        Context = context;
 
-        public NavigationContext Context => _navigationContext;
+        Status = RouterStatus.Navigating;
 
-        private CancellationToken _ctx => _cts?.Token ?? CancellationToken.None;
-
-        public async Task CancelNavigation()
+        try
         {
+            await OnNavigatedToAsync(_ctx);
+
             if (_cts != null && !_cts.IsCancellationRequested)
             {
-                _cts.Cancel();
-                await OnCancelationNavigatedToAsync();
+                Status = RouterStatus.Completed;
 
+                await OnCompletedAsync();
+
+                _isInitialize = true;
+            }
+            else
+            {
                 Status = RouterStatus.Disposed;
+                await OnCancelationNavigatedToAsync();
             }
         }
-
-        public virtual void Dispose()
+        catch (OperationCanceledException)
         {
-            _cts?.Cancel();
-            _cts?.Dispose();
+            Status = RouterStatus.Disposed;
 
-            _cts = null;
-            _navigationContext = null!;
+            await OnCancelationNavigatedToAsync();
         }
-
-        public async Task InitializeAsync(NavigationContext context)
+        catch (Exception ex)
         {
-            if (_isInitialize)
+            if (await OnNavigationErrorAsync(ex))
                 return;
 
-            _cts?.Cancel();
-            _cts?.Dispose();
-
-            _cts = new CancellationTokenSource();
-
-            _navigationContext = context;
-
-            Status = RouterStatus.Navigating;
-
-            try
-            {
-                await OnNavigatedToAsync(_ctx);
-
-                if (_cts != null && !_cts.IsCancellationRequested)
-                {
-                    Status = RouterStatus.Completed;
-
-                    await OnCompletedAsync();
-
-                    _isInitialize = true;
-                }
-                else
-                {
-                    Status = RouterStatus.Disposed;
-                    await OnCancelationNavigatedToAsync();
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                Status = RouterStatus.Disposed;
-
-                await OnCancelationNavigatedToAsync();
-            }
-            catch (Exception ex)
-            {
-                if (await OnNavigationErrorAsync(ex))
-                    return;
-
-                throw;
-            }
+            throw;
         }
+    }
 
-        public abstract Task OnNavigatedToAsync(CancellationToken ctx);
+    public abstract Task OnNavigatedToAsync(CancellationToken ctx);
 
-        protected virtual Task OnCancelationNavigatedToAsync()
+    public async Task CancelNavigation()
+    {
+        if (_cts != null && !_cts.IsCancellationRequested)
         {
-            Dispose();
+            _cts.Cancel();
+            await OnCancelationNavigatedToAsync();
 
-            return Task.CompletedTask;
+            Status = RouterStatus.Disposed;
         }
+    }
 
-        protected virtual Task OnCompletedAsync()
-                    => Task.CompletedTask;
+    protected virtual Task OnCancelationNavigatedToAsync()
+    {
+        Dispose();
 
-        protected virtual Task<bool> OnNavigationErrorAsync(Exception ex)
-            => Task.FromResult(false);
+        return Task.CompletedTask;
+    }
+
+    protected virtual Task OnCompletedAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    protected virtual Task<bool> OnNavigationErrorAsync(Exception ex)
+    {
+        return Task.FromResult(false);
     }
 }

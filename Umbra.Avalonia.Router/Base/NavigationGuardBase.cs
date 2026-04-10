@@ -15,7 +15,7 @@ public abstract class NavigationGuardBase : IGuard
             case GuardAction.Allow:
                 await OnGuardPassed(context);
                 break;
-            
+
             case GuardAction.Cancel:
                 await OnGuardFailed(context);
                 break;
@@ -23,19 +23,27 @@ public abstract class NavigationGuardBase : IGuard
 
         return result;
     }
-    
+
     protected abstract Task<GuardResult> CanNavigateAsync(NavigationContext context);
-    
+
     protected virtual Task OnGuardPassed(NavigationContext context)
-        => Task.CompletedTask;
+    {
+        return Task.CompletedTask;
+    }
 
     protected virtual Task OnGuardFailed(NavigationContext context)
-        => Task.CompletedTask;
-    
-    
+    {
+        return Task.CompletedTask;
+    }
+
+
     protected GuardResult Allow()
-        => GuardResult.Allow();
-    
+    {
+        return GuardResult.Allow();
+    }
+
     protected GuardResult Cancel()
-        => GuardResult.Cancel();
+    {
+        return GuardResult.Cancel();
+    }
 }
