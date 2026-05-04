@@ -1,184 +1,320 @@
-# Umbra.Avalonia.Router
 
-Cross-platform routing library for AvaloniaUI.
+# 📦 Umbra.Router.Core
 
-> This project **started as a fork** of `Sandreas.Avalonia.SimpleRouter`,
-> but has since evolved — the API and internals are now significantly different.
+A lightweight, framework-agnostic routing system for .NET UI applications.
 
----
+Works with:
 
-## New: NavigationContext + IRoutePage
-
-Optional modern API built around:
-
-- `NavigationContext`
-- strongly-typed route pages via `IRoutePage` (ViewModel)
-- async navigation hooks
-- natural integration with `IServiceCollection`
-- container-agnostic (DryIoc / Autofac / Microsoft DI / etc)
+* Avalonia
+* WPF
+* WinUI / Uno
+* MAUI
+* WinForms (sim, até lá se você quiser sofrer um pouco 😄)
 
 ---
 
-## Install
+# ✨ Overview
 
-```bash
-dotnet add package Umbra.Avalonia.Router
-````
+Umbra Router was designed to provide a **clean navigation pipeline with IoC-first resolution, guards, parameters, and view-model binding**, without locking you into a specific UI framework.
 
 ---
 
-## Features
+# ⚡ Core Idea
 
-* lightweight
-* IoC / DI friendly
-* automatic parameter injection into ViewModels
-* navigation history (Back / Forward)
-* extensible
-* **new**: NavigationContext + IRoutePage API
+The routing pipeline follows this strict order:
 
----
-
-## New API Overview
-
-### Base Page
-
-```csharp
-public abstract class ViewModelBasePage : PageRouterBase
-{
-    public override Task OnNavigatedToAsync(CancellationToken ctx)
-      => Task.CompletedTask;
-}
+```
+URL → Resolver → Guard → ViewModel → View → UI
 ```
 
-### ViewModels
+### Why this order?
+
+Performance and predictability.
+
+* **Resolver is cheap (types only)**
+* Guards run BEFORE ViewModel creation
+* ViewModel is only created if navigation is allowed
+* View is only instantiated at the end
+
+This avoids unnecessary allocations and initialization work.
+
+---
+
+# 🧠 Key Concepts
+
+## 1. Route Registration
+
+Routes are registered via `RoutesBuilder`.
+
+### Simple registration
 
 ```csharp
-public partial class HomeViewModel : ViewModelBasePage
+x.Register<HomePage, HomeViewModel>("home");
+```
+
+### Angular-style nested routes
+
+```csharp
+x.UseAngularStyleRoutes(new RoutesAngularStyle
 {
-    private readonly RouterHistory<ViewModelBasePage> _router;
-
-    public HomeViewModel(RouterHistory<ViewModelBasePage> router)
-        => _router = router;
-
-    [RelayCommand]
-    public void NavigateToStore()
-        => _router.Navigate("store?query=games&page=1&size=20",
-                            "My App Store",
-                            new SessionParams(1, DateTime.UtcNow));
-}
-
-public partial class StoreViewModel : ViewModelBasePage
-{
-    [ObservableProperty] private string _query;
-    [ObservableProperty] private int _page;
-    [ObservableProperty] private int _size;
-
-    private SessionParams _body;
-    private readonly RouterHistory<ViewModelBasePage> _router;
-
-    public StoreViewModel(RouterHistory<ViewModelBasePage> router)
-        => _router = router;
-
-    public override Task OnNavigatedToAsync(CancellationToken ctx)
+    new RouteAngularStyle
     {
-        Query = Context.Query.TryGetValue("query", out string query) 
-            ? query : ""; 
-
-        Page = Context.Query.TryGetValueNumber("page", out int page) 
-            ? page : 0; 
-            
-        Size = Context.Query.TryGetValueNumber("size", out int size) 
-            ? size : 0;
-
-        if (Context.Body.TryGetValue(out ParamsBody? body))
-            Date = body.Date.ToString("hh:mm:ss");
-
-        return Task.CompletedTask;
+        Path = "sub",
+        Children =
+        {
+            new RouteAngularStyle
+            {
+                Path = "first",
+                Component = typeof(FirstSubPage),
+                ViewModel = typeof(FirstSubViewModel)
+            }
+        }
     }
-
-    [RelayCommand]
-    public void NavigateToHome()
-        => _router.Navigate("home", "My App Home");
-}
-
-public record SessionParams(int Id, DateTime Date);
-```
-
-### Register Routes
-
-```csharp
-services.AddAvaloniaRouter<ViewModelBasePage>(options =>
-{
-    options.Register<HomePage,  HomeViewModel>("home");
-    options.Register<StorePage, StoreViewModel>("store");
-    options.Register<Error404Page, Error404ViewModel>("**");
 });
 ```
 
-### MainWindow Integration
+---
+
+## 2. Title System (Important)
+
+Each route can define a title template:
 
 ```csharp
-public partial class MainWindowViewModel : ViewModelBase
-{
-    [ObservableProperty] private Control _content;
-    [ObservableProperty] private string _title;
-
-    public MainWindowViewModel()
-    {
-        this.RouterHistory.TitleChanged += (title) =>
-        {
-            Title = string.IsNullOrWhiteSpace(title) ? "Sample Router" : $"Sample Router - {title}";
-        };
-        this.RouterHistory.PageChanged += NavigateEvent;
-        
-        this.RouterHistory.GoTo("home", "Home");
-    }
-    
-    private void NavigateEvent(object? sender, NavigationResultEventArgs<Control> e)
-    {
-        Content = e.Page;
-    }
-}
+SetTitle("Params {0}")
 ```
 
-XAML:
-
-```xml
-<StackPanel Grid.Column="1" Margin="10">
-    <ContentControl Content="{Binding Content}"/>
-</StackPanel>
-```
-
-## DryIoc Example
+Then navigation replaces `{0}` dynamically:
 
 ```csharp
-public static IContainer Container { get; set; }
+_history.NavigateAsync(
+    url: "example/params?page=2",
+    title: "2"
+);
+```
 
-private void ConfigureServices()
+### Result:
+
+```
+Params 2
+```
+
+---
+
+## 3. Navigation Flow
+
+When you call:
+
+```csharp
+_history.NavigateAsync("example/params?page=2");
+```
+
+This is what happens internally:
+
+### 🔁 Pipeline
+
+1. **URL Parsing**
+2. **Route Resolver (IoC-based)**
+3. **Guard execution (CanMatch)**
+4. **Guard execution (CanDeactivate)**
+5. **ViewModel resolution**
+6. **View creation**
+7. **Binding (ConfigureTView)**
+8. **UI update event**
+
+---
+
+# 🛡️ Guards System
+
+Guards control navigation BEFORE ViewModel is created.
+
+### Base class
+
+```csharp
+public abstract class NavigationGuardBase : IGuard
 {
-    var services = new ServiceCollection();
-
-    services.AddAvaloniaRouter<ViewModelBasePage>(options =>
+    public async Task<GuardResult> ExecuteGuardAsync(NavigationContext context)
     {
-        options.HistorySize = 5;
+        var result = await GuardAsync(context);
 
-        options.Register<HomePage,  HomeViewModel>("home");
-        options.Register<StorePage, StoreViewModel>("store");
-        options.Register<Error404Page, Error404ViewModel>("**");
-    });
+        if (result.Decision == GuardDecision.Allow)
+            await OnGuardAllow(context);
+        else
+            await OnGuardDeny(context);
 
-    var dryIoc = new Container()
-        .WithDependencyInjectionAdapter(services)
-        .Populate(services);
+        return result;
+    }
 
-    Container = dryIoc;
+    protected abstract Task<GuardResult> GuardAsync(NavigationContext context);
 }
 ```
 
 ---
 
-## Roadmap
+### Example usage
 
-* unify object & query data flow inside NavigationContext
-* optional query-style param helpers
+```csharp
+x.Register<HomePage, HomeViewModel>("home")
+ .CanMatchGuard<AuthGuard>()
+ .CanDeactivateGuard<UnsavedChangesGuard>();
+```
+
+---
+
+### Guard lifecycle
+
+* `CanMatch` → executed BEFORE ViewModel is created
+* `CanDeactivate` → executed BEFORE leaving current page
+
+If guard returns:
+
+* `Allow` → navigation continues
+* `Deny` → navigation stops
+* `Redirect` → navigates to another route
+
+---
+
+# 📦 ViewModel Context (IMPORTANT)
+
+This is where many people get confused.
+
+Inside a ViewModel:
+
+```csharp
+public override async Task OnNavigatedToAsync(CancellationToken ctx)
+{
+    Username = Context.Query["name"];
+    Page = Context.Query["page"];
+
+    if (Context.Body.TryGetValue(out ParamsBody body))
+        Date = body.Date.ToString("hh:mm:ss");
+}
+```
+
+### ❓ Where does `Context` come from?
+
+It is injected automatically by the router.
+
+Each ViewModel that implements `IRoutePage` receives:
+
+### `NavigationContext`
+
+It contains:
+
+* `Query` → URL query string (`?page=1`)
+* `Body` → navigation payload object
+* `Path` → route path
+* `Title` → computed title
+* `RouteSnapshot` → full resolved route state
+
+So nothing is "magic" — it's **injected during ViewModel resolution**.
+
+---
+
+# 🧩 View Binding (Framework Adapter)
+
+Umbra Router does NOT assume how your UI binds.
+
+Instead, you define it:
+
+```csharp
+public class RouterHistory<TViewModel> : RouterHistoryBase<TViewModel, Control>
+{
+    protected override void ConfigureTView(ref Control? view, TViewModel viewModel)
+    {
+        view.DataContext = viewModel;
+    }
+}
+```
+
+### Why this exists?
+
+Because Umbra Router is **framework-agnostic**.
+
+You decide:
+
+* Avalonia → `DataContext`
+* WPF → `DataContext`
+* MAUI → `BindingContext`
+* WinUI → `DataContext`
+
+The router does NOT enforce UI behavior.
+
+---
+
+# 🧭 Router Registration Example
+
+```csharp
+services.AddUmbraRouter<Control, PageViewModelBase>(x =>
+{
+    x.Register<HomePage, HomeViewModel>("home");
+    x.Register<ParamsPage, ParamsModelView>("example/params");
+
+    x.Register<Error404Page, Error404ViewModel>("**");
+});
+```
+
+---
+
+# 💡 IoC First Design
+
+Everything is resolved through DI:
+
+* ViewModels
+* Views
+* Guards
+* Router services
+
+No `new` outside the container.
+
+---
+
+# 🚀 Why this router exists
+
+* Avoid heavy navigation frameworks
+* Full control over pipeline
+* Fast guard-first filtering
+* No unnecessary ViewModel instantiation
+* Framework-independent design
+
+---
+
+# 🧪 Mental Model
+
+Think of it like a conveyor belt:
+
+```
+URL
+ ↓
+Route Resolver (cheap lookup)
+ ↓
+Guards (can I even continue?)
+ ↓
+ViewModel creation (DI)
+ ↓
+View creation (UI layer)
+ ↓
+Binding injection
+ ↓
+UI update event
+```
+
+If anything fails early → everything after is skipped.
+
+---
+
+# 🧼 Design Philosophy
+
+* Minimal allocations
+* Early rejection (guards first)
+* IoC everywhere
+* No UI coupling
+* Explicit lifecycle hooks
+
+---
+
+# 📌 Final Note
+
+If something looks like “magic” in this system, it's usually just:
+
+> dependency injection + structured context passing + strict pipeline order
 

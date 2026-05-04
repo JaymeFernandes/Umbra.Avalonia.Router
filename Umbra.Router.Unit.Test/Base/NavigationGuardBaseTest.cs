@@ -13,12 +13,12 @@ public class NavigationGuardBaseTest
     {
         var testGuard = new TestGuard(true);
 
-        var uri = new UriContext("");
+        var uri = new RouteSnapshot("");
         var ctx = GenerateContext(uri);
 
         var result = await testGuard.ExecuteGuardAsync(ctx);
         
-        Assert.Equal(GuardAction.Allow, result.Action);
+        Assert.True(result.Decision == GuardDecision.Allow);
         Assert.False(testGuard.RunGuardFailed);
         Assert.True(testGuard.RunGuardPassed);
     }
@@ -28,17 +28,17 @@ public class NavigationGuardBaseTest
     {
         var testGuard = new TestGuard(false);
 
-        var uri = new UriContext("");
+        var uri = new RouteSnapshot("");
         var ctx = GenerateContext(uri);
         
         var result = await testGuard.ExecuteGuardAsync(ctx);
         
-        Assert.Equal(GuardAction.Cancel, result.Action);
+        Assert.True(result.Decision == GuardDecision.Deny);
         Assert.True(testGuard.RunGuardFailed);
         Assert.False(testGuard.RunGuardPassed);
     }
     
-    private NavigationContext GenerateContext(UriContext context)
+    private NavigationContext GenerateContext(RouteSnapshot context)
     {
         var template = new RouteTemplate(new TestDefinition(""));
 
@@ -58,24 +58,24 @@ class TestGuard : NavigationGuardBase
         Auth = auth;
     }
     
-    protected override Task<GuardResult> CanNavigateAsync(NavigationContext context)
+    protected override Task<GuardResult> GuardAsync(NavigationContext context)
     {
         return Auth ? 
-            Task.FromResult(Allow()) : 
-            Task.FromResult(Cancel());
+            Task.FromResult(GuardResult.Allow()) : 
+            Task.FromResult(GuardResult.Deny());
     }
 
-    protected override Task OnGuardFailed(NavigationContext context)
+    protected override Task OnGuardDeny(NavigationContext context)
     {
         RunGuardFailed = true;
         
-        return base.OnGuardFailed(context);
+        return base.OnGuardDeny(context);
     }
 
-    protected override Task OnGuardPassed(NavigationContext context)
+    protected override Task OnGuardAllow(NavigationContext context)
     {
         RunGuardPassed = true;
         
-        return base.OnGuardPassed(context);
+        return base.OnGuardAllow(context);
     }
 }

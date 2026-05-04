@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PackageId>Umbra.Router.Core</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Jayme Fernandes</Authors>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <RepositoryUrl>https://github.com/JaymeFernandes/Umbra.Router.Core</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/JaymeFernandes/Umbra.Router.Core</PackageProjectUrl>
+        <PackageTags>router;history</PackageTags>
+        <Description>
+            Umbra.Core.Router is a lightweight and framework-agnostic routing library for .NET applications.
+            It provides a fast trie-based router with support for route parameters, catch-all segments,
+            navigation guards, and dependency injection.
+
+            Designed as a core routing engine that can be integrated with any UI framework
+            (Avalonia, WPF, WinUI, MAUI, Blazor, or custom architectures) to build flexible
+            view or view-model navigation systems.
+        </Description>
+        <RootNamespace>Umbra.Router.Core</RootNamespace>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="../README.md" Pack="true" PackagePath="/"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.6" />
+    </ItemGroup>
+</Project>

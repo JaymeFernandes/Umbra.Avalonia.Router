@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using RouterSample.ViewModels.Example;
 using RouterSample.ViewModels.Shared;
 using System;
-using Umbra.Router.Avalonia;
 
 namespace RouterSample.ViewModels;
 
@@ -22,6 +21,6 @@ public partial class HomeViewModel : PageViewModelBase
     public void Go()
     {
         if (!string.IsNullOrWhiteSpace(_name))
-            _router.Navigate($"example/params?name={_name}", new ParamsBody(DateTime.UtcNow));
+            _router.NavigateAsync($"example/params?name={_name}", new ParamsBody(DateTime.UtcNow));
     }
 }

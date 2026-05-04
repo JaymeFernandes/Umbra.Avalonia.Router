@@ -4,7 +4,7 @@ using RouterSample.ViewModels.Shared;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Umbra.Router.Avalonia;
+using Umbra.Router.Core;
 
 namespace RouterSample.ViewModels.Example;
 
@@ -28,7 +28,7 @@ public partial class ParamsModelView : PageViewModelBase
     {
         var nextPage = Page + 1;
 
-        _history.Navigate(
+        _history.NavigateAsync(
             url: $"example/params?name={Username}&page={nextPage}",
             title: $"Page - {nextPage}",
             body: new ParamsBody(DateTime.UtcNow));
@@ -40,7 +40,7 @@ public partial class ParamsModelView : PageViewModelBase
         if (Page <= 0) return;
         var prevPage = Page - 1;
 
-        _history.Navigate(
+        _history.NavigateAsync(
             url: $"example/params?name={Username}&page={prevPage}",
             title: $"Page - {prevPage}",
             body: new ParamsBody(DateTime.UtcNow));

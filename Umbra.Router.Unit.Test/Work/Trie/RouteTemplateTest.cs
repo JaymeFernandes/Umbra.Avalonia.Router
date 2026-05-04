@@ -1,4 +1,5 @@
 using Umbra.Router.Core.Configuration;
+using Umbra.Router.Core.Work.Navigation;
 using Umbra.Router.Core.Work.Trie;
 
 namespace Umbra.Router.Unit.Test.Work.Trie;
